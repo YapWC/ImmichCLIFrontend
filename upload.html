@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Immich Bulk Upload</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+</head>
+<body>
+
+    <h1>Immich</h1>
+    <p>Choose File/Folder Path</p>
+    <input type="text" id="output-path-field" required size="60">
+    <input type="button" id="file-folder-selection-button" value="Select">
+
+    <form>
+        <p>Tick the Box</p>
+        <input type="checkbox" id="dry-run" name="dry-run">
+        <label for="dry-run">Dry Run: Test Out What will be Uploaded</label><br>
+        
+        <input type="checkbox" id="album" name="album">
+        <label for="album">Upload Album</label><br>
+        
+        <input type="checkbox" id="recursive" name="recursive">
+        <label for="recursive">Upload Sub-Album(s) as well</label><br><br>
+
+        <input id="immich-upload" type="submit" value="Upload">
+    </form>
+
+</body>
+<script src="renderer.js"></script>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Immich Bulk Upload</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+</head>
+<body>
+
+    <h1>Immich</h1>
+    <p>Bulk Upload your Photos and Videos!</p>
+
+    <form>
+        <label for="immich-url">URL:</label><br>
+        <input type="text" id="immich-url" name="immich-url" placeholder="Your Immich URL" required size="30"><br>
+        <label for="immich-api-key">API Key:</label><br>
+        <input type="text" id="immich-api-key" name="immich-api-key" placeholder="Immich API Key" required size="30">
+    </form><br>
+
+    <button id="connect-immich">Connect</button>
+
+</body>
+<script src="renderer.js"></script>
+</html>
