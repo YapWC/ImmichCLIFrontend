@@ -63,7 +63,7 @@ ipcMain.handle("upload:submit", (event, args) => {
   const album = isAlbum ? "--album" : "";
   const recursive = isRecursive ? "--recursive" : "";
   
-  const cli = spawn("immich", ["upload", dry_run, album, recursive, file_folder_path] );
+  const cli = spawn("immich", ["upload", dry_run, album, recursive, ...file_folder_path] );
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
   console_logs_data(cli);
   
