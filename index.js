@@ -45,7 +45,15 @@ ipcMain.handle("login:submit", (event, args) => {
   const cli = spawn("immich", ["login", url, key] );
   console_logs_data(cli);
 
-  mainWindow.loadFile('upload.html');
+  cli.on('close', (code) => {
+  if (code === 0) {
+    // Process login successfully
+    mainWindow.loadFile(uplaod_html);
+  } else {
+    // Non-zero exit code indicates an error
+    dialog.showMessageBoxSync({message: `Login Error either URL or API Key does not match. Try Again.`})
+  }
+  });
 })
 
 ipcMain.handle("upload:submit", (event, args) => {
