@@ -8,25 +8,25 @@ const uplaod_html = 'upload.html'
 let mainWindow;
 let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
 
-const createWindow = () => {
+const createWindow = (html_file, width = 800, height = 600) => {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: width,
+    height: height,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  win.loadFile('index.html')
+  win.loadFile(html_file)
 
   return win
 }
 
 app.whenReady().then(() => {
-  mainWindow = createWindow()
+  mainWindow = createWindow(index_html)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      mainWindow = createWindow()
+      mainWindow = createWindow(index_html)
     }
   })
 })
@@ -62,7 +62,7 @@ ipcMain.handle("upload:submit", (event, args) => {
 })
 
 ipcMain.handle("open-dialog-for-file", (event) => {
-  file_folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
+  file_folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
   console.log(file_folder_path)
   return file_folder_path
 })
