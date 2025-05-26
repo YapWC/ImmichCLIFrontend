@@ -69,7 +69,7 @@ ipcMain.handle("upload:submit", (event, args) => {
   
 })
 
-ipcMain.handle("open-dialog-for-file", (event) => {
+ipcMain.handle("open-dialog-for-file-folder", (event) => {
   file_folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
   console.log(file_folder_path)
   return file_folder_path
