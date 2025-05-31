@@ -1,9 +1,11 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { spawn } = require('child_process');
 const path = require('node:path')
+const pty =  require('node-pty');
 
 const index_html= 'index.html';
 const uplaod_html = 'upload.html'
+const immich_cli_file = path.join(__dirname, 'node_modules', '.bin', 'immich');
 
 let mainWindow;
 let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
@@ -32,8 +34,10 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  const cli = spawn("immich", ["logout"]);
-  console_logs_data(cli);
+  const ptyProcess = pty.spawn(immich_cli_file, ['logout'])
+  ptyProcess.onData((data) => {
+    process.stdout.write(data);
+  });
 
   if (process.platform !== 'darwin') {
     app.quit()
@@ -42,18 +46,19 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("login:submit", (event, args) => {
   const { url, key } = args;
-  const cli = spawn("immich", ["login", url, key] );
-  console_logs_data(cli);
-
-  cli.on('close', (code) => {
-  if (code === 0) {
-    // Process login successfully
-    mainWindow.loadFile(uplaod_html);
-  } else {
-    // Non-zero exit code indicates an error
-    dialog.showMessageBoxSync({message: `Login Error either URL or API Key does not match. Try Again.`})
-  }
+  const ptyProcess = pty.spawn(immich_cli_file, ['login', url, key])
+  ptyProcess.onData((data) => {
+    process.stdout.write(data);
   });
+  ptyProcess.onExit(({ exitCode, signal }) => {
+    if (exitCode === 0) {
+      // Process login successfully
+      mainWindow.loadFile(uplaod_html);
+    } else {
+      // Non-zero exit code indicates an error
+      dialog.showMessageBoxSync({message: `Login Error either URL or API Key does not match. Try Again.`})
+    }
+  })
 })
 
 ipcMain.handle("upload:submit", (event, args) => {
@@ -63,9 +68,12 @@ ipcMain.handle("upload:submit", (event, args) => {
   const album = isAlbum ? "--album" : "";
   const recursive = isRecursive ? "--recursive" : "";
   
-  const cli = spawn("immich", ["upload", dry_run, album, recursive, ...file_folder_path] );
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
-  console_logs_data(cli);
+  
+  const ptyProcess = pty.spawn(immich_cli_file, ['upload', dry_run, album, recursive, ...file_folder_path])
+  ptyProcess.onData((data) => {
+    process.stdout.write(data);
+  });
   
 })
 
