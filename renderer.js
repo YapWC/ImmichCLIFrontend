@@ -27,4 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
       outputPathField.value = fileFolderPath;
     })
   }
+  
+  const terminalField = document.getElementById('terminal-output')
+  let firstLine = document.getElementById('first-line')
+  let secondLine = document.getElementById('second-line')
+  let thirdLine = document.getElementById('third-line')
+  let fourthLine = document.getElementById('fourth-line')
+  let fifthLine = document.getElementById('fifth-line')
+  if (terminalField) {
+    window.immich.receiveMessage((message) => {
+    fifthLine.textContent = fourthLine.textContent;
+    fourthLine.textContent = thirdLine.textContent;
+    thirdLine.textContent = secondLine.textContent;
+    secondLine.textContent = firstLine.textContent;
+    console.log(`This is the Message for Frontend Temrinal Output: ${message}`)
+    firstLine.textContent = message
+  })
+  }
 });

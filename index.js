@@ -73,6 +73,7 @@ ipcMain.handle("upload:submit", (event, args) => {
   const ptyProcess = pty.spawn(immich_cli_file, ['upload', dry_run, album, recursive, ...file_folder_path])
   ptyProcess.onData((data) => {
     process.stdout.write(data);
+    event.sender.send('output-message', data);
   });
   
 })

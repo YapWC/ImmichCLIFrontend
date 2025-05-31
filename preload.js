@@ -7,4 +7,5 @@ contextBridge.exposeInMainWorld('openDialog', {
 contextBridge.exposeInMainWorld('immich', {
   login: (url, key) => ipcRenderer.invoke('login:submit', { url, key }),
   upload: (isDryRun, isAlbum, isRecursive) => ipcRenderer.invoke('upload:submit', {isDryRun, isAlbum, isRecursive}),
+  receiveMessage: (callback) => ipcRenderer.on('output-message', (event, message) => callback(message))
 })
