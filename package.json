@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@immich/cli": "^2.2.67",
+    "@xterm/xterm": "^5.5.0",
     "node-pty": "^1.0.0"
   }
 }

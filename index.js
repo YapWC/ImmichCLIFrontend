@@ -10,7 +10,7 @@ const immich_cli_file = path.join(__dirname, 'node_modules', '.bin', 'immich');
 let mainWindow;
 let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
 
-const createWindow = (html_file, width = 800, height = 600) => {
+const createWindow = (html_file, width = 1000, height = 800) => {
   const win = new BrowserWindow({
     width: width,
     height: height,
