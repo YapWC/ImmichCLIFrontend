@@ -1,3 +1,4 @@
+<!-- upload.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,38 +7,79 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <link rel="stylesheet" type="text/css" href="./styles.css">
     <link rel="stylesheet" href="node_modules/@xterm/xterm/css/xterm.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="node_modules/@xterm/xterm/lib/xterm.js"></script>
 </head>
 <body>
+    <div class="container">
+        <h1>📤 Upload Center</h1>
+        <p class="subtitle">Select your photos and videos to upload to Immich</p>
 
-    <h1>Immich</h1>
-    <p>Choose File/Folder Path</p>
-    <input type="text" id="output-path-field" required size="60">
-    <input type="button" id="file-folder-selection-button" value="Select">
+        <div class="form-group">
+            <label for="output-path-field">📁 Select Files or Folder</label>
+            <div class="file-selection">
+                <input type="text" id="output-path-field" placeholder="Choose files or folder..." readonly>
+                <button type="button" id="file-folder-selection-button">Browse</button>
+            </div>
+        </div>
 
-    <form>
-        <p>Options</p>
-        <input type="checkbox" id="dry-run" name="dry-run">
-        <label for="dry-run">Dry Run/Test Run</label><br>
-        
-        <input type="checkbox" id="album" name="album">
-        <label for="album">Create Album(s)</label><br>
-        
-        <input type="checkbox" id="recursive" name="recursive">
-        <label for="recursive">Include Sub-Album(s)</label><br><br>
+        <form id="upload-form">
+            <div class="form-group">
+                <h3 style="margin-bottom: 1rem; color: #374151;">⚙️ Upload Options</h3>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="dry-run" name="dry-run">
+                    <label for="dry-run">🧪 Test Run (Preview only - no actual upload)</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="album" name="album">
+                    <label for="album">📚 Create Albums automatically</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="recursive" name="recursive">
+                    <label for="recursive">📂 Include subfolders</label>
+                </div>
+            </div>
 
-        <input id="immich-upload" type="submit" value="Upload">
-    </form>
+            <button id="immich-upload" type="submit" class="btn">
+                <span class="btn-text">🚀 Start Upload</span>
+            </button>
+        </form>
 
-    <br><div id="terminal"></div>
-      <script>
-        window.term = new Terminal({
-            cols: 100,
-            rows: 20
-        });
-        window.term.open(document.getElementById('terminal'));
-      </script>
+        <div class="terminal-container" id="terminal-container" style="display: none;">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                </div>
+                <div class="terminal-title">Upload Progress</div>
+            </div>
+            <div id="terminal"></div>
+        </div>
+    </div>
 
+    <script>
+        // Initialize terminal only when needed
+        //function initTerminal() {
+            if (!window.term) {
+                window.term = new Terminal({
+                    cols: 100,
+                    rows: 9,
+                    theme: {
+                        background: '#1f2937',
+                        foreground: '#f9fafb',
+                    }
+                });
+                //window.term.options = { fontSize: 12 }
+                window.term.open(document.getElementById('terminal'));
+                document.getElementById('terminal-container').style.display = 'block';
+            }
+        //}
+    </script>
+
+    <script src="renderer.js"></script>
 </body>
-<script src="renderer.js"></script>
 </html>
