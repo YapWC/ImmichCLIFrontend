@@ -7,19 +7,24 @@
     <link rel="stylesheet" type="text/css" href="./styles.css">
 </head>
 <body>
+    <div class="container">
+        <h1>📸 Immich</h1>
+        <p class="subtitle">Connect to your Immich instance to start bulk uploading</p>
 
-    <h1>Immich</h1>
-    <p>Bulk Upload your Photos and Videos!</p>
+        <form id="connection-form">
+            <div class="form-group">
+                <label for="immich-url">🌐 Server URL</label>
+                <input type="url" id="immich-url" placeholder="https://your-immich-server.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="immich-api-key">🔑 API Key</label>
+                <input type="password" id="immich-api-key" placeholder="Your API key from Immich settings" required>
+            </div>
 
-    <form>
-        <label for="immich-url">URL:</label><br>
-        <input type="text" id="immich-url" name="immich-url" placeholder="Your Immich URL" required size="30"><br>
-        <label for="immich-api-key">API Key:</label><br>
-        <input type="text" id="immich-api-key" name="immich-api-key" placeholder="Immich API Key" required size="30">
-    </form><br>
+            <button id="connect-immich" class="btn">Connect to Immich</button>
+        </form>
 
-    <button id="connect-immich">Connect</button>
-
+    <script src="renderer.js"></script>
 </body>
-<script src="renderer.js"></script>
 </html>
