@@ -15,10 +15,20 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron-forge start",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.8.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
+    "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron/fuses": "^1.8.0",
     "@electron/rebuild": "^4.0.1",
     "electron": "^36.3.1",
     "electron-reloader": "^1.2.3"
@@ -26,6 +36,7 @@
   "dependencies": {
     "@immich/cli": "^2.2.67",
     "@xterm/xterm": "^5.5.0",
+    "electron-squirrel-startup": "^1.0.1",
     "node-pty": "^1.0.0"
   }
 }

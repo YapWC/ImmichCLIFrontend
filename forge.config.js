@@ -1,9 +1,17 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const path = require('path')
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      //native modules that can only be run outside of app.asar
+      unpackDir: path.join('**', '{node_modules/node-pty,node_modules/@immich}', '**', '*')
+    },
+    extraResource: [
+      //The node binary files for different Operating System
+      "resources/node",
+    ],
   },
   rebuildConfig: {},
   makers: [
