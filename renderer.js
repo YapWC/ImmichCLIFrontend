@@ -36,3 +36,5 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   }
 });
+
+console.log("renderer.js Loaded")
