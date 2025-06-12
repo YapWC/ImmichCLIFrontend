@@ -5,7 +5,6 @@ const pty =  require('node-pty');
 
 const index_html= 'index.html';
 const uplaod_html = 'upload.html'
-const immich_cli_file = path.join(__dirname, 'node_modules', '.bin', 'immich');
 
 let mainWindow;
 let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
@@ -13,6 +12,29 @@ let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
 try {
 	require('electron-reloader')(module);
 } catch {}
+
+function getNodePath() {
+    if (app.isPackaged) {
+        // Use Electron's node binary in packaged app
+        return path.join(process.resourcesPath, "node", "macos", "node")
+    } else {
+        // Use system node in development
+        return 'node';
+    }
+}
+const nodePath = getNodePath();
+console.log(process.resource)
+
+function getImmichCliPath() {
+    if (app.isPackaged) {
+        // In packaged app
+        return path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', '@immich', 'cli', 'dist', 'index.js');
+    } else {
+        // In development
+        return path.join(__dirname, 'node_modules', '@immich', 'cli', 'dist', 'index.js');
+    }
+}
+const immich_cli_file = getImmichCliPath();
 
 const createWindow = (html_file, width = 1300, height = 950) => {
   const win = new BrowserWindow({
@@ -38,7 +60,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  const ptyProcess = pty.spawn(immich_cli_file, ['logout'])
+  const ptyProcess = pty.spawn(nodePath, [immich_cli_file, 'logout'])
   ptyProcess.onData((data) => {
     process.stdout.write(data);
   });
@@ -50,7 +72,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("login:submit", (event, args) => {
   const { url, key } = args;
-  const ptyProcess = pty.spawn(immich_cli_file, ['login', url, key])
+  const ptyProcess = pty.spawn(nodePath, [immich_cli_file, 'login', url, key])
   ptyProcess.onData((data) => {
     process.stdout.write(data);
   });
@@ -74,7 +96,7 @@ ipcMain.handle("upload:submit", (event, args) => {
   
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
   
-  const ptyProcess = pty.spawn(immich_cli_file, ['upload', dry_run, album, recursive, ...file_folder_path])
+  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...file_folder_path])
   ptyProcess.onData((data) => {
     process.stdout.write(data);
     event.sender.send('output-message', data);
@@ -100,4 +122,18 @@ function console_logs_data(cli) {
   });
 }
 
+const triggerAllowLocalNetworkAccessPrompt = async () => {
+  try {
+    const response = await fetch("https://www.google.com/robots.txt");
+    if (response.ok) {
+      console.log("Internet connection is available.");
+    } else {
+      console.log("Internet connection is not available.");
+    }
+  } catch (error) {
+    console.error("Error checking connectivity:", error);
+  }
+}
 
+// This log will appear in terminal not in web console
+console.log("index.js Loaded")
