@@ -14,13 +14,25 @@ try {
 } catch {}
 
 function getNodePath() {
-    if (app.isPackaged) {
-        // Use Electron's node binary in packaged app
+  if (app.isPackaged) {
+    switch (process.platform) {
+      case 'darwin':
         return path.join(process.resourcesPath, "node", "macos", "node")
-    } else {
-        // Use system node in development
-        return 'node';
+      case 'win32':
+        return path.join(process.resourcesPath, "node", "windows", "node.exe")
+      case 'linux':
+        return path.join(process.resourcesPath, "node", "linux", "node")
     }
+  } else {
+    switch (process.platform) {
+      case 'darwin':
+        return path.join(__dirname, "resources", "node", "macos", "node")
+      case 'win32':
+        return path.join(__dirname, "resources", "node", "windows", "node.exe")
+      case 'linux':
+        return path.join(__dirname, "resources", "node", "linux", "node")
+    }
+  }
 }
 const nodePath = getNodePath();
 console.log(process.resource)
