@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDryRun = document.getElementById('dry-run').checked;
       console.log(isDryRun)
       const isAlbum = document.getElementById('album').checked;
-      const isRecursive = document.getElementById('recursive').checked;
+      //const isRecursive = document.getElementById('recursive').checked; Disable temporarily
+      const isRecursive = false;
       const isUpload = await window.immich.upload(isDryRun, isAlbum, isRecursive);
     });
   }
@@ -36,3 +37,5 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   }
 });
+
+console.log("renderer.js Loaded")

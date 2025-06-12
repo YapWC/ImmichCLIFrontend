@@ -9,3 +9,5 @@ contextBridge.exposeInMainWorld('immich', {
   upload: (isDryRun, isAlbum, isRecursive) => ipcRenderer.invoke('upload:submit', {isDryRun, isAlbum, isRecursive}),
   receiveMessage: (callback) => ipcRenderer.on('output-message', (event, message) => callback(message))
 })
+
+console.log('preload loaded')
