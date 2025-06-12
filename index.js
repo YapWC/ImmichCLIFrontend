@@ -65,9 +65,12 @@ app.on('window-all-closed', () => {
     process.stdout.write(data);
   });
 
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // Wait for the logout process to complete only then quit
+  ptyProcess.onExit((exitCode) => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  });
 })
 
 ipcMain.handle("login:submit", (event, args) => {
