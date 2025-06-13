@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('node:path')
 const pty =  require('node-pty');
+const { exitCode } = require('node:process');
 
 const index_html= 'index.html';
 const uplaod_html = 'upload.html'
@@ -137,7 +138,12 @@ ipcMain.handle("open-dialog-for-file", (event) => {
 })
 
 ipcMain.handle("open-dialog-for-folder", (event) => {
-  folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  // For no in Electron 36.3.1 version users are facing folder path
+  // note returned on MacOS so the below will be temporarily disabled
+  // Source: https://github.com/electron/electron/issues/47248
+  //folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  // Tempory solution
+  folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
   console.log(folder_path)
   return folder_path
 })
