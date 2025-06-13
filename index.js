@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
-const { spawn } = require('child_process');
 const path = require('node:path')
 const pty =  require('node-pty');
 
@@ -112,31 +111,32 @@ ipcMain.handle("upload:submit", (event, args) => {
   
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
   
+  let uploadPath;
   if (file_path) {
-    const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...file_path])
-    ptyProcess.onData((data) => {
-      process.stdout.write(data);
-      event.sender.send('output-message', data);
-    });
+    uploadPath = file_path
+    file_path = ''
   } else if (folder_path) {
-    const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...folder_path])
-    ptyProcess.onData((data) => {
-      process.stdout.write(data);
-      event.sender.send('output-message', data);
-    });
+    uploadPath = folder_path
+    folder_path = ''
+  } else {
+    dialog.showMessageBoxSync({message: `No file or folder path provided. Try Again`})
+    return 1;
   }
-  
+
+  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...uploadPath])
+  ptyProcess.onData((data) => {
+    process.stdout.write(data);
+    event.sender.send('output-message', data);
+  });
 })
 
 ipcMain.handle("open-dialog-for-file", (event) => {
-  folder_path = '';
   file_path = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
   console.log(file_path)
   return file_path
 })
 
 ipcMain.handle("open-dialog-for-folder", (event) => {
-  file_path = '';
   folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
   console.log(folder_path)
   return folder_path
