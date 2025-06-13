@@ -1,7 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('openDialog', {
-  file_folder: () => ipcRenderer.invoke('open-dialog-for-file-folder')
+  file: () => ipcRenderer.invoke('open-dialog-for-file'),
+  folder: () => ipcRenderer.invoke('open-dialog-for-folder')
 })
 
 contextBridge.exposeInMainWorld('immich', {

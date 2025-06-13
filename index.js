@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
-const { spawn } = require('child_process');
 const path = require('node:path')
 const pty =  require('node-pty');
 
@@ -7,20 +6,33 @@ const index_html= 'index.html';
 const uplaod_html = 'upload.html'
 
 let mainWindow;
-let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
+let file_path = '';
+let folder_path = '';
 
 try {
 	require('electron-reloader')(module);
 } catch {}
 
 function getNodePath() {
-    if (app.isPackaged) {
-        // Use Electron's node binary in packaged app
+  if (app.isPackaged) {
+    switch (process.platform) {
+      case 'darwin':
         return path.join(process.resourcesPath, "node", "macos", "node")
-    } else {
-        // Use system node in development
-        return 'node';
+      case 'win32':
+        return path.join(process.resourcesPath, "node", "windows", "node.exe")
+      case 'linux':
+        return path.join(process.resourcesPath, "node", "linux", "node")
     }
+  } else {
+    switch (process.platform) {
+      case 'darwin':
+        return path.join(__dirname, "resources", "node", "macos", "node")
+      case 'win32':
+        return path.join(__dirname, "resources", "node", "windows", "node.exe")
+      case 'linux':
+        return path.join(__dirname, "resources", "node", "linux", "node")
+    }
+  }
 }
 const nodePath = getNodePath();
 console.log(process.resource)
@@ -65,9 +77,12 @@ app.on('window-all-closed', () => {
     process.stdout.write(data);
   });
 
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // Wait for the logout process to complete only then quit
+  ptyProcess.onExit((exitCode) => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  });
 })
 
 ipcMain.handle("login:submit", (event, args) => {
@@ -96,18 +111,35 @@ ipcMain.handle("upload:submit", (event, args) => {
   
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
   
-  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...file_folder_path])
+  let uploadPath;
+  if (file_path) {
+    uploadPath = file_path
+    file_path = ''
+  } else if (folder_path) {
+    uploadPath = folder_path
+    folder_path = ''
+  } else {
+    dialog.showMessageBoxSync({message: `No file or folder path provided. Try Again`})
+    return 1;
+  }
+
+  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...uploadPath])
   ptyProcess.onData((data) => {
     process.stdout.write(data);
     event.sender.send('output-message', data);
   });
-  
 })
 
-ipcMain.handle("open-dialog-for-file-folder", (event) => {
-  file_folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
-  console.log(file_folder_path)
-  return file_folder_path
+ipcMain.handle("open-dialog-for-file", (event) => {
+  file_path = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
+  console.log(file_path)
+  return file_path
+})
+
+ipcMain.handle("open-dialog-for-folder", (event) => {
+  folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  console.log(folder_path)
+  return folder_path
 })
 
 function console_logs_data(cli) {
