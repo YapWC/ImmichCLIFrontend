@@ -20,12 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const pathButton = document.getElementById('file-folder-selection-button')
+  const filePathButton = document.getElementById('file-selection-button')
+  const folderPathButton = document.getElementById('folder-selection-button')
   const outputPathField = document.getElementById('output-path-field')
-  if (pathButton) {
-    pathButton.addEventListener('click', async () => {
-      const fileFolderPath = await window.openDialog.file_folder();
-      outputPathField.value = fileFolderPath;
+  if (filePathButton && folderPathButton) {
+    filePathButton.addEventListener('click', async () => {
+      const filePath = await window.openDialog.file();
+      outputPathField.value = filePath;
+    })
+    folderPathButton.addEventListener('click', async () => {
+      const folderPath = await window.openDialog.folder();
+      outputPathField.value = folderPath;
     })
   }
   

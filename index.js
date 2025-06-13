@@ -7,7 +7,8 @@ const index_html= 'index.html';
 const uplaod_html = 'upload.html'
 
 let mainWindow;
-let file_folder_path = "/Users/yapch/Desktop/Orico_2Bay_NAS_MetaCube.jpeg";
+let file_path = '';
+let folder_path = '';
 
 try {
 	require('electron-reloader')(module);
@@ -111,18 +112,34 @@ ipcMain.handle("upload:submit", (event, args) => {
   
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
   
-  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...file_folder_path])
-  ptyProcess.onData((data) => {
-    process.stdout.write(data);
-    event.sender.send('output-message', data);
-  });
+  if (file_path) {
+    const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...file_path])
+    ptyProcess.onData((data) => {
+      process.stdout.write(data);
+      event.sender.send('output-message', data);
+    });
+  } else if (folder_path) {
+    const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...folder_path])
+    ptyProcess.onData((data) => {
+      process.stdout.write(data);
+      event.sender.send('output-message', data);
+    });
+  }
   
 })
 
-ipcMain.handle("open-dialog-for-file-folder", (event) => {
-  file_folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
-  console.log(file_folder_path)
-  return file_folder_path
+ipcMain.handle("open-dialog-for-file", (event) => {
+  folder_path = '';
+  file_path = dialog.showOpenDialogSync({ properties: ['openFile', 'multiSelections'] })
+  console.log(file_path)
+  return file_path
+})
+
+ipcMain.handle("open-dialog-for-folder", (event) => {
+  file_path = '';
+  folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  console.log(folder_path)
+  return folder_path
 })
 
 function console_logs_data(cli) {
