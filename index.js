@@ -3,6 +3,8 @@ const path = require('node:path')
 const pty =  require('node-pty');
 const { exitCode } = require('node:process');
 
+let isDebug = false;
+
 const index_html= 'index.html';
 const uplaod_html = 'upload.html'
 
@@ -58,6 +60,9 @@ const createWindow = (html_file, width = 1300, height = 950) => {
     }
   })
   win.loadFile(html_file)
+  if (isDebug) {
+    win.webContents.openDevTools()
+  }
 
   return win
 }
