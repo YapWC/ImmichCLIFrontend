@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('node:path')
 const pty =  require('node-pty');
 
+let isDebug = false;
+
 const index_html= 'index.html';
 const uplaod_html = 'upload.html'
 
@@ -57,6 +59,9 @@ const createWindow = (html_file, width = 1300, height = 950) => {
     }
   })
   win.loadFile(html_file)
+  if (isDebug) {
+    win.webContents.openDevTools()
+  }
 
   return win
 }
@@ -102,15 +107,26 @@ ipcMain.handle("login:submit", (event, args) => {
   })
 })
 
+let activePtyProcess;
 ipcMain.handle("upload:submit", (event, args) => {
-  const { isDryRun, isAlbum, isRecursive } = args;
-  
+  const { isDryRun, isAlbum, isRecursive, isCancel } = args;
   const dry_run = isDryRun ? "--dry-run" : "";
   const album = isAlbum ? "--album" : "";
   const recursive = isRecursive ? "--recursive" : "";
+
+  if (isCancel) {
+    try {
+      activePtyProcess.kill()
+      process.stdout.write(`Killed Active ptyProcess and Upload Cancelled\n`)
+      return 0;
+    } catch (e) {
+      console.error(`Error to Kill Active ptyProcess: ${e}`)
+      return 1;
+    }
+  }
   
   console.log(`Dry Run: ${dry_run}  Album: ${album}  Recursive: ${recursive}`)
-  
+
   let uploadPath;
   if (file_path) {
     uploadPath = file_path
@@ -123,11 +139,19 @@ ipcMain.handle("upload:submit", (event, args) => {
     return 1;
   }
 
-  const ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...uploadPath])
+  ptyProcess = pty.spawn(nodePath, [immich_cli_file,'upload', dry_run, album, recursive, ...uploadPath])
+  // To preserve the process even after the next call
+  activePtyProcess = ptyProcess;
+  console.log(`Process ID: ${ptyProcess.pid}`)
   ptyProcess.onData((data) => {
     process.stdout.write(data);
     event.sender.send('output-message', data);
   });
+
+  ptyProcess.onExit((e) => {
+    process.stdout.write(`Upload Exited in index.js: exitCode ${e.exitCode}\n`);
+    event.sender.send('output-message', e.exitCode)
+  })
 })
 
 ipcMain.handle("open-dialog-for-file", (event) => {
@@ -137,7 +161,12 @@ ipcMain.handle("open-dialog-for-file", (event) => {
 })
 
 ipcMain.handle("open-dialog-for-folder", (event) => {
-  folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  // For no in Electron 36.3.1 version users are facing folder path
+  // note returned on MacOS so the below will be temporarily disabled
+  // Source: https://github.com/electron/electron/issues/47248
+  //folder_path = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections'] })
+  // Tempory solution
+  folder_path = dialog.showOpenDialogSync({ properties: ['openFile', 'openDirectory', 'multiSelections'] })
   console.log(folder_path)
   return folder_path
 })
@@ -166,6 +195,7 @@ const triggerAllowLocalNetworkAccessPrompt = async () => {
     console.error("Error checking connectivity:", error);
   }
 }
+triggerAllowLocalNetworkAccessPrompt()
 
 // This log will appear in terminal not in web console
 console.log("index.js Loaded")

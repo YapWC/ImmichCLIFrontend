@@ -9,14 +9,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const uploadButton = document.getElementById('immich-upload')
+  let originalUploadTextContent;
   if (uploadButton) {
+    originalUploadTextContent = uploadButton.textContent
     uploadButton.addEventListener('click', async () => {
       const isDryRun = document.getElementById('dry-run').checked;
       console.log(isDryRun)
       const isAlbum = document.getElementById('album').checked;
       //const isRecursive = document.getElementById('recursive').checked; Disable temporarily
       const isRecursive = false;
-      const isUpload = await window.immich.upload(isDryRun, isAlbum, isRecursive);
+      let isCancel = false;
+      if (uploadButton.textContent === 'Cancel') {
+        isCancel = true
+        console.log(`Cancel Called`)
+      }
+      await window.immich.upload(isDryRun, isAlbum, isRecursive, isCancel);
     });
   }
 
@@ -37,10 +44,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const terminalField = document.getElementById('terminal')
   if (terminalField) {
     window.immich.receiveMessage((message) => {
-    console.log(`This is the Message for Frontend Temrinal Output: ${message}`)
-    window.term.write(message)
-  })
+      if (typeof message === 'number') { // message is exitCode number
+        uploadComplete(uploadButton, originalUploadTextContent, message)
+      } else {
+        console.log(`Received Message: ${message}`)
+        window.term.write(message)
+        uploadButton.textContent = 'Cancel'
+      }
+    })
   }
 });
+
+function uploadComplete(button, textContent, exitCode) {
+  switch (exitCode) {
+    case 0:
+      console.log(`Upload Completed Successfully! exitCode: ${exitCode}`)
+      window.term.write(`Completed!`)
+      break;
+    case 1:
+      console.log(`Upload Failed! exitCode: ${exitCode}`)
+      window.term.write(`Failed!`)
+      break;
+  }
+  button.textContent = textContent
+}
 
 console.log("renderer.js Loaded")
