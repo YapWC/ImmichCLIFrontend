@@ -4,6 +4,7 @@ const path = require('path')
 
 module.exports = {
   packagerConfig: {
+    icon: 'icon/immich-logo',
     asar: {
       //native modules that can only be run outside of app.asar
       unpackDir: path.join('**', '{node_modules/node-pty,node_modules/@immich}', '**', '*')
