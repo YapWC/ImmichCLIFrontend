@@ -1,3 +1,5 @@
+includeHTML('_title.html', 'title-placeholder');
+
 document.addEventListener('DOMContentLoaded', () => {
   const connectButton = document.getElementById('connect-immich');
   if (connectButton) {
@@ -67,6 +69,24 @@ function uploadComplete(button, textContent, exitCode) {
       break;
   }
   button.textContent = textContent
+}
+
+// Function to load fixed content into a placeholder in html files
+function includeHTML(filePath, placeholderId) {
+    fetch(filePath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok " + response.statusText);
+            }
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById(placeholderId).innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error fetching HTML:', error);
+            document.getElementById(placeholderId).innerHTML = `<p style="color:red;">Could not load ${filePath}</p>`;
+        });
 }
 
 console.log("renderer.js Loaded")
